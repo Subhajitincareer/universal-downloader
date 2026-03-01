@@ -2,12 +2,15 @@ export const metadata = {
   title: 'Universal Video Downloader',
   description: 'Download videos from YouTube, Facebook, and Instagram in premium quality.',
   manifest: '/manifest.json',
-  themeColor: '#09090e',
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
     title: 'Downloader',
   },
+}
+
+export const viewport = {
+  themeColor: '#09090e',
 }
 
 export default function RootLayout({ children }) {
