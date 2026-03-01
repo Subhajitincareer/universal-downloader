@@ -67,11 +67,16 @@ class handler(BaseHTTPRequestHandler):
                 self.wfile.write(json.dumps(response_data).encode('utf-8'))
                 
         except Exception as e:
+            import traceback
+            error_details = traceback.format_exc()
+            print("YT-DLP ERROR:", error_details)
+            
             self.send_response(500)
             self.send_header('Content-type', 'application/json')
             self.send_header('Access-Control-Allow-Origin', '*')
             self.end_headers()
             self.wfile.write(json.dumps({
                 'error': 'Failed to fetch video info',
-                'details': str(e)
+                'details': str(e),
+                'traceback': error_details
             }).encode('utf-8'))
