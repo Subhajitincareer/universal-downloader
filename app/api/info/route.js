@@ -16,7 +16,6 @@ export async function GET(request) {
       noWarnings: true,
       noCallHome: true,
       noCheckCertificate: true,
-      extractorArgs: "youtube:player_client=ios" // Add the bot bypass here too just in case!
     });
 
     const formats = output.formats
