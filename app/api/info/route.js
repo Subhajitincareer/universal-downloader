@@ -46,7 +46,12 @@ export async function GET(request) {
       formats: formats,
     });
   } catch (error) {
-    console.error('Error fetching info:', error);
-    return NextResponse.json({ error: 'Failed to fetch video info. Please verify the URL.' }, { status: 500 });
+    console.error('Error fetching info:', error.message);
+    if (error.stderr) console.error('stderr:', error.stderr);
+    
+    return NextResponse.json({ 
+      error: 'Failed to fetch video info. Please verify the URL.', 
+      details: error.message || String(error)
+    }, { status: 500 });
   }
 }
