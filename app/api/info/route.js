@@ -10,39 +10,56 @@ export async function GET(request) {
   }
 
   try {
-    // Fetch video metadata, formats, and other details using yt-dlp through the wrapper
-    const output = await youtubedl(url, {
-      dumpJson: true,
-      noWarnings: true,
-      noCallHome: true,
-      noCheckCertificate: true,
-      preferFreeFormats: true,
-      youtubeSkipDashManifest: true,
-    });
-
-    // Parse the relevant formats from the output
-    // Filter out formats that don't have video (audio only) unless it's strictly needed, 
-    // but for universally downloading formats, we want combinations or pre-merged formats
-    const formats = output.formats
-      .filter((f) => f.vcodec !== 'none') // Ensure it has video
-      .map((f) => ({
-        formatId: f.format_id,
-        resolution: f.resolution || `${f.width}x${f.height}`,
-        ext: f.ext,
-        filesize: f.filesize || f.filesize_approx,
-        fps: f.fps,
-        formatNote: f.format_note,
-        vcodec: f.vcodec,
-        acodec: f.acodec,
-        directUrl: f.url // Send the direct CDN URL to the client
-      }))
-      .reverse(); // Generally best qualities are at the end
+    let formats = [];
+    let title = "Universal Video";
+    let thumbnail = "";
+    let duration = 0;
+    
+    // YOUTUBE HANDLER
+    if (url.includes('youtu.be') || url.includes('youtube.com')) {
+      const ytdl = require('@distube/ytdl-core');
+      const info = await ytdl.getInfo(url);
+      title = info.videoDetails.title;
+      thumbnail = info.videoDetails.thumbnails[0]?.url || "";
+      duration = parseInt(info.videoDetails.lengthSeconds);
+      
+      formats = info.formats
+        .filter(f => f.hasVideo && f.hasAudio) // For simplicity, grab pre-muxed streams
+        .map(f => ({
+          formatId: f.itag.toString(),
+          ext: f.container,
+          resolution: f.qualityLabel || 'Standard',
+          filesize: f.contentLength || 0,
+          fps: f.fps || 30,
+          vcodec: f.videoCodec,
+          acodec: f.audioCodec,
+          directUrl: f.url
+        }));
+    } else {
+      // INSTAGRAM, FACEBOOK, TIKTOK, TWITTER HANDLER
+      const { ndown } = require("nayan-media-downloader");
+      const socialData = await ndown(url);
+      if(!socialData.status || !socialData.data) {
+          throw new Error("Could not parse social media URL.");
+      }
+      title = socialData.data[0]?.title || "Social Media Video";
+      thumbnail = socialData.data[0]?.thumbnail || "";
+      
+      formats = socialData.data.map((f, index) => ({
+        formatId: `social-${index}`,
+        ext: 'mp4',
+        resolution: f.resolution || 'HD',
+        filesize: 0,
+        fps: 30,
+        directUrl: f.url
+      }));
+    }
 
     return NextResponse.json({
-      title: output.title,
-      thumbnail: output.thumbnail,
-      duration: output.duration,
-      extractor: output.extractor,
+      title,
+      thumbnail,
+      duration,
+      extractor: 'pure-js-engine',
       formats: formats,
     });
   } catch (error) {
