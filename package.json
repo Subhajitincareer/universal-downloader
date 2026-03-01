@@ -9,8 +9,6 @@
     "lint": "eslint"
   },
   "dependencies": {
-    "@distube/ytdl-core": "^4.16.12",
-    "nayan-media-downloaders": "^0.1.8",
     "next": "16.1.6",
     "next-pwa": "^5.6.0",
     "react": "19.2.3",
