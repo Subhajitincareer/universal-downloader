@@ -50,14 +50,14 @@ export default function Home() {
       return;
     }
 
-    // Standard Download Logic
+    // Direct Download Logic (Bypasses Vercel Server)
     setDownloadingFormat(format.formatId);
     
-    const downloadUrl = `/api/download?url=${encodeURIComponent(url)}&formatId=${format.formatId}`;
-    
+    // Open the direct CDN link in a new tab to initiate the native browser download
     const a = document.createElement('a');
-    a.href = downloadUrl;
-    a.download = 'video';
+    a.href = format.directUrl;
+    a.target = '_blank';
+    a.download = videoInfo?.title || 'video';
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
@@ -97,14 +97,14 @@ export default function Home() {
 
       <div className="header">
         <h1 className="title">Universal Downloader</h1>
-        <p className="subtitle">Download flawlessly from YouTube, Facebook, and Instagram.</p>
+        <p className="subtitle">Download flawlessly from YouTube, Instagram, Facebook, TikTok, X, and more.</p>
       </div>
 
       <div className="input-section">
         <input 
           type="url" 
           className="url-input" 
-          placeholder="Paste video URL here..." 
+          placeholder="Paste YouTube, Instagram, TikTok, Facebook URL here..." 
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && fetchInfo()}

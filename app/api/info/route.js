@@ -34,7 +34,7 @@ export async function GET(request) {
         formatNote: f.format_note,
         vcodec: f.vcodec,
         acodec: f.acodec,
-        url: f.url // the direct URL if they want to stream it directly
+        directUrl: f.url // Send the direct CDN URL to the client
       }))
       .reverse(); // Generally best qualities are at the end
 
