@@ -3,7 +3,10 @@
   "builds": [
     {
       "src": "package.json",
-      "use": "@vercel/next"
+      "use": "@vercel/next",
+      "config": {
+        "includeFiles": "node_modules/youtube-dl-exec/bin/**"
+      }
     }
   ],
   "installCommand": "npm install",

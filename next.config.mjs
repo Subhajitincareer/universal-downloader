@@ -9,6 +9,11 @@ const withPWA = withPWAInit({
 const nextConfig = {
   serverExternalPackages: ['youtube-dl-exec'],
   turbopack: {},
+  experimental: {
+    outputFileTracingIncludes: {
+      '/api/**/*': ['./node_modules/youtube-dl-exec/bin/**/*'],
+    },
+  },
 };
 
 export default withPWA(nextConfig);
