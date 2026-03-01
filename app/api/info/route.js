@@ -37,7 +37,6 @@ export async function GET(request) {
         }));
     } else {
       // INSTAGRAM, FACEBOOK, TIKTOK, TWITTER HANDLER
-      const { ndown } = require("nayan-media-downloader");
       const socialData = await ndown(url);
       if(!socialData.status || !socialData.data) {
           throw new Error("Could not parse social media URL.");
