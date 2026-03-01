@@ -27,7 +27,12 @@ class handler(BaseHTTPRequestHandler):
             'format': 'best',
             'quiet': True,
             'no_warnings': True,
-            'skip_download': True
+            'skip_download': True,
+            'extractor_args': {
+                'youtube': {
+                    'player_client': ['ios', 'android']
+                }
+            }
         }
 
         try:
