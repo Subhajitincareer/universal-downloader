@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { ndown } from 'nayan-media-downloader';
+import { ndown } from 'nayan-media-downloaders';
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const url = searchParams.get('url');
