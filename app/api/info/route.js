@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
-import youtubedl from 'youtube-dl-exec';
-
+import { ndown } from 'nayan-media-downloader';
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
   const url = searchParams.get('url');
