@@ -15,6 +15,15 @@ export async function GET(request) {
     const cookiePath = path.resolve(process.cwd(), 'cookies.txt');
     const hasCookies = fs.existsSync(cookiePath);
     
+    console.log("========== SERVER COOKIE DEBUG ==========");
+    console.log("Process CWD:", process.cwd());
+    console.log("Looking for cookies at:", cookiePath);
+    console.log("File exists:", hasCookies);
+    if(hasCookies) {
+        console.log("File size:", fs.statSync(cookiePath).size, "bytes");
+    }
+    console.log("=========================================");
+
     // Crucial Update: YouTube is aggressively blocking Datacenter IPs. 
     // We MUST use the web client bypasses if cookies aren't present.
     const options = {
@@ -27,9 +36,14 @@ export async function GET(request) {
 
     if (hasCookies) {
       options.cookies = cookiePath;
+      console.log("Attached cookies to yt-dlp arguments.");
+    } else {
+      console.log("WARNING: NO COOKIES FOUND. Relying on client spoofing.");
     }
 
+    console.log("Executing yt-dlp...");
     const output = await youtubedl(url, options);
+    console.log("YT-DLP execution successful!");
 
     const formats = output.formats
       .filter((f) => f.vcodec !== 'none') // Ensure it has video
