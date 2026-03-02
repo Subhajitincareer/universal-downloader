@@ -14,8 +14,8 @@ export async function GET(request) {
     const output = await youtubedl(url, {
       dumpSingleJson: true,
       noWarnings: true,
-      noCallHome: true,
       noCheckCertificate: true,
+      extractorArgs: "youtube:player_client=ios,android"
     });
 
     const formats = output.formats
