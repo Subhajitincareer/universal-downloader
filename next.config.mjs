@@ -8,6 +8,7 @@ const withPWA = withPWAInit({
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   turbopack: {},
+  serverExternalPackages: ['youtube-dl-exec'],
 };
 
 export default withPWA(nextConfig);
