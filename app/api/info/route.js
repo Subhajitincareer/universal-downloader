@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server';
 import youtubedl from 'youtube-dl-exec';
+import fs from 'fs';
+import path from 'path';
 
 export async function GET(request) {
   const { searchParams } = new URL(request.url);
@@ -10,19 +12,17 @@ export async function GET(request) {
   }
 
   try {
-    // using youtube-dl-exec to extract standard format info natively in a Dockerized environment
-    const fs = require('fs');
-    const path = require('path');
-    
-    // Check if the user uploaded a cookies file
     const cookiePath = path.resolve(process.cwd(), 'cookies.txt');
     const hasCookies = fs.existsSync(cookiePath);
     
+    // Crucial Update: YouTube is aggressively blocking Datacenter IPs. 
+    // We MUST use the web client bypasses if cookies aren't present.
     const options = {
       dumpSingleJson: true,
       noWarnings: true,
       noCheckCertificate: true,
-      extractorArgs: "youtube:player_client=ios,android"
+      // Pass multiple clients: web-creator prevents age-gate, ios prevents bot-gate
+      extractorArgs: "youtube:player_client=ios,web,android"
     };
 
     if (hasCookies) {
@@ -54,12 +54,15 @@ export async function GET(request) {
       formats: formats,
     });
   } catch (error) {
-    console.error('Error fetching info:', error.message);
-    if (error.stderr) console.error('stderr:', error.stderr);
+    console.error('Final yt-dlp Error:', error.message);
+    
+    // Send a beautifully formatted error message to the client frontend
+    const isBotError = error.message.includes('Sign in to confirm');
     
     return NextResponse.json({ 
-      error: 'Failed to fetch video info. Please verify the URL.', 
-      details: error.message || String(error)
+      error: isBotError ? "YouTube Bot Protection Active. The server administrator must upload a cookies.txt file to the server root." : "Failed to extract video info.", 
+      details: error.message || String(error),
+      requiresAuth: isBotError
     }, { status: 500 });
   }
 }
