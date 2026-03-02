@@ -11,12 +11,25 @@ export async function GET(request) {
 
   try {
     // using youtube-dl-exec to extract standard format info natively in a Dockerized environment
-    const output = await youtubedl(url, {
+    const fs = require('fs');
+    const path = require('path');
+    
+    // Check if the user uploaded a cookies file
+    const cookiePath = path.resolve(process.cwd(), 'cookies.txt');
+    const hasCookies = fs.existsSync(cookiePath);
+    
+    const options = {
       dumpSingleJson: true,
       noWarnings: true,
       noCheckCertificate: true,
       extractorArgs: "youtube:player_client=ios,android"
-    });
+    };
+
+    if (hasCookies) {
+      options.cookies = cookiePath;
+    }
+
+    const output = await youtubedl(url, options);
 
     const formats = output.formats
       .filter((f) => f.vcodec !== 'none') // Ensure it has video
