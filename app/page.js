@@ -50,14 +50,15 @@ export default function Home() {
       return;
     }
 
-    // Direct Download Logic (Bypasses Vercel Server)
+    // Proxy Download Logic (Pipes through our Next.js server to bypass 403 IP mismatch)
     setDownloadingFormat(format.formatId);
     
-    // Open the direct CDN link in a new tab to initiate the native browser download
+    // Hit our proxy API endpoint which streams the download securely
+    const downloadUrl = `/api/download?url=${encodeURIComponent(url)}&formatId=${format.formatId}&title=${encodeURIComponent(videoInfo?.title || 'video')}&ext=${format.ext}`;
+    
     const a = document.createElement('a');
-    a.href = format.directUrl;
-    a.target = '_blank';
-    a.download = videoInfo?.title || 'video';
+    a.href = downloadUrl;
+    a.download = `${videoInfo?.title || 'video'}.${format.ext}`;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);

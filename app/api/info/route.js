@@ -12,8 +12,10 @@ export async function GET(request) {
   }
 
   try {
-    const cookiePath = path.resolve(process.cwd(), 'cookies.txt');
-    const hasCookies = fs.existsSync(cookiePath);
+    // Escape space issue in path because of 'cloning project' folder name
+    // passing the path relative to CWD avoids full absolute path spacing errors
+    const cookiePath = 'cookies.txt';
+    const hasCookies = fs.existsSync(path.resolve(process.cwd(), cookiePath));
     
     console.log("========== SERVER COOKIE DEBUG ==========");
     console.log("Process CWD:", process.cwd());
@@ -35,6 +37,7 @@ export async function GET(request) {
     };
 
     if (hasCookies) {
+      // Need to stringify the path to avoid backslash escaping issues on Windows
       options.cookies = cookiePath;
       console.log("Attached cookies to yt-dlp arguments.");
     } else {
