@@ -9,7 +9,6 @@ export default function Home() {
   const [videoInfo, setVideoInfo] = useState(null);
   const [error, setError] = useState('');
   const [downloadingFormat, setDownloadingFormat] = useState(null);
-  const [showProModal, setShowProModal] = useState(false); // Modal state for Freemium
 
   const fetchInfo = async () => {
     if (!url.trim()) {
@@ -36,19 +35,10 @@ export default function Home() {
     }
   };
 
-  const isProFormat = (format) => {
-    // If it's a high resolution or high framerate, flag it as PRO
-    if (!format.resolution) return false;
-    const resValue = parseInt(format.resolution.split('x')[1]); // get height
-    return resValue >= 1080 || format.fps >= 60;
-  };
+
 
   const handleDownloadClick = (format) => {
-    if (isProFormat(format)) {
-      // Trigger Freemium Gating Modal instead of downloading
-      setShowProModal(true);
-      return;
-    }
+
 
     // Proxy Download Logic (Pipes through our Next.js server to bypass 403 IP mismatch)
     setDownloadingFormat(format.formatId);
@@ -73,13 +63,14 @@ export default function Home() {
     
     const resMap = new Map();
     formats.forEach(f => {
-      const resKey = f.resolution;
+      // Use resolution + hasAudio as key to differentiate between silent and voiced versions
+      const resKey = `${f.resolution}-${f.hasAudio}`;
       if (!resMap.has(resKey)) {
         resMap.set(resKey, f);
       }
     });
 
-    return Array.from(resMap.values());
+    return Array.from(resMap.values()).sort((a, b) => (b.height || 0) - (a.height || 0));
   };
 
   return (
@@ -159,26 +150,29 @@ export default function Home() {
           
           <div className="formats-list">
             {getCleanFormats(videoInfo.formats).map((format, idx) => {
-              const checkPro = isProFormat(format);
               return (
                 <button 
                   key={idx} 
-                  className={`format-btn ${checkPro ? 'pro' : ''}`}
+                  className="format-btn"
                   onClick={() => handleDownloadClick(format)}
                   disabled={downloadingFormat === format.formatId}
                 >
-                  {/* 3. Freemium Pro Badge UI */}
-                  {checkPro && <span className="pro-badge">PRO</span>}
-                  
-                  <span className={`format-res ${checkPro ? 'pro-text' : ''}`}>{format.resolution}</span>
-                  <span className="format-ext">.{format.ext} {format.vcodec !== 'none' ? 'Video' : 'Audio'}</span>
-                  {format.filesize ? (
-                    <span style={{fontSize: '0.75rem', opacity: 0.7}}>
-                      {(format.filesize / (1024 * 1024)).toFixed(1)} MB
-                    </span>
-                  ) : null}
+                  <div className="format-badges">
+                    {format.hasVideo && format.hasAudio && <span className="badge combined">Video + Audio</span>}
+                    {format.hasVideo && !format.hasAudio && <span className="badge video">Silent Video</span>}
+                    {!format.hasVideo && format.hasAudio && <span className="badge audio">Audio Only</span>}
+                  </div>
+
+                  <span className="format-res">{format.resolution}</span>
+                  <span className="format-ext">.{format.ext.toUpperCase()}</span>
+                  <div className="format-meta">
+                    {format.fps ? <span>{format.fps} FPS</span> : null}
+                    {format.filesize ? (
+                      <span>{(format.filesize / (1024 * 1024)).toFixed(1)} MB</span>
+                    ) : null}
+                  </div>
                   {downloadingFormat === format.formatId && (
-                    <span style={{ fontSize: '0.8rem', color: 'var(--accent-color)' }}>Starting...</span>
+                    <span style={{ fontSize: '0.8rem', color: 'var(--accent-color)', marginTop: '0.5rem' }}>Processing...</span>
                   )}
                 </button>
               );
@@ -187,22 +181,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* 4. Freemium Upgrade Modal */}
-      {showProModal && (
-        <div className="modal-overlay" onClick={() => setShowProModal(false)}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <button className="modal-close" onClick={() => setShowProModal(false)}>&times;</button>
-            <div className="premium-icon">👑</div>
-            <h2 className="modal-title">Unlock Premium Quality</h2>
-            <p className="modal-desc">
-              Downloading 4K and 60FPS video files consumes massive server bandwidth. Get the <strong>PRO Pass</strong> to unlock maximum quality formats permanently and support the developer!
-            </p>
-            <button className="upgrade-btn" onClick={() => alert('This would redirect to Stripe Checkout!')}>
-              Upgrade to PRO for $4.99
-            </button>
-          </div>
-        </div>
-      )}
+
     </main>
   );
 }

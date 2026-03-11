@@ -9,7 +9,6 @@
   --accent-color: #6366f1;
   --accent-hover: #4f46e5;
   --danger-color: #ef4444;
-  --gold-color: #f59e0b;
 }
 
 * {
@@ -83,6 +82,7 @@ h1, h2, h3 {
   font-weight: 800;
   background: linear-gradient(to right, #a855f7, #6366f1);
   -webkit-background-clip: text;
+  background-clip: text;
   color: transparent;
   margin-bottom: 1rem;
 }
@@ -272,26 +272,27 @@ h1, h2, h3 {
 
 .formats-list {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 1.25rem;
 }
 
-/* Freemium: Pro Badge Styles */
+
 .format-btn {
   background: rgba(255, 255, 255, 0.05);
   border: 1px solid var(--glass-border);
   border-radius: 12px;
-  padding: 1.2rem 1rem; /* Added slightly more padding */
+  padding: 1.5rem 1rem;
   color: white;
   cursor: pointer;
   transition: all 0.2s ease;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0.3rem;
-  position: relative; /* Setup absolute positioning internally */
+  gap: 0.5rem;
   overflow: hidden;
+  text-align: center;
 }
+
 
 .format-btn:hover {
   background: rgba(255, 255, 255, 0.1);
@@ -299,29 +300,10 @@ h1, h2, h3 {
   transform: translateY(-2px);
 }
 
-.format-btn.pro {
-  border-color: rgba(245, 158, 11, 0.4);
-  background: linear-gradient(180deg, rgba(245, 158, 11, 0.05) 0%, rgba(255, 255, 255, 0.02) 100%);
-}
 
-.format-btn.pro:hover {
-  border-color: var(--gold-color);
-  box-shadow: 0 5px 15px rgba(245, 158, 11, 0.15);
-}
 
-.pro-badge {
-  position: absolute;
-  top: 0;
-  right: 0;
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  color: white;
-  font-size: 0.65rem;
-  font-weight: 800;
-  padding: 0.2rem 0.6rem;
-  border-bottom-left-radius: 8px;
-  letter-spacing: 0.5px;
-  box-shadow: -2px 2px 10px rgba(0,0,0,0.2);
-}
+
+
 
 .format-res {
   font-weight: 600;
@@ -329,97 +311,62 @@ h1, h2, h3 {
   font-family: 'Outfit', sans-serif;
 }
 
-.format-res.pro-text {
-  color: #fcd34d;
-}
-
 .format-ext {
-  font-size: 0.8rem;
+  font-size: 0.85rem;
+  font-weight: 700;
   color: var(--text-secondary);
+  background: rgba(255,255,255,0.05);
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  margin: 0.2rem 0;
 }
 
-/* Pro Modal Styles */
-.modal-overlay {
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: rgba(0, 0, 0, 0.8);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
+.format-badges {
   display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.5rem;
   justify-content: center;
-  align-items: center;
-  z-index: 100;
-  animation: fadeIn 0.3s ease;
 }
 
-.modal-content {
-  background: linear-gradient(135deg, #1e1b4b 0%, #0f172a 100%);
-  border: 1px solid rgba(99, 102, 241, 0.3);
-  border-radius: 24px;
-  padding: 3rem;
-  max-width: 500px;
-  width: 90%;
-  text-align: center;
-  position: relative;
-  box-shadow: 0 25px 50px rgba(0,0,0,0.5);
-  animation: fadeInUp 0.4s ease-out;
+.badge {
+  font-size: 0.65rem;
+  font-weight: 700;
+  padding: 0.2rem 0.5rem;
+  border-radius: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
-.modal-close {
-  position: absolute;
-  top: 1rem;
-  right: 1.5rem;
-  background: transparent;
-  border: none;
+.badge.combined {
+  background: rgba(34, 197, 94, 0.15);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.badge.video {
+  background: rgba(245, 158, 11, 0.15);
+  color: #fbbf24;
+  border: 1px solid rgba(245, 158, 11, 0.2);
+}
+
+.badge.audio {
+  background: rgba(99, 102, 241, 0.15);
+  color: #818cf8;
+  border: 1px solid rgba(99, 102, 241, 0.2);
+}
+
+.format-meta {
+  display: flex;
+  gap: 0.75rem;
+  font-size: 0.75rem;
   color: var(--text-secondary);
-  font-size: 1.5rem;
-  cursor: pointer;
-  transition: color 0.2s;
+  margin-top: 0.5rem;
+  opacity: 0.8;
 }
 
-.modal-close:hover {
-  color: white;
-}
 
-.premium-icon {
-  font-size: 3.5rem;
-  margin-bottom: 1rem;
-  animation: float 3s ease-in-out infinite;
-}
 
-.modal-title {
-  font-size: 2rem;
-  background: linear-gradient(to right, #fbbf24, #f59e0b);
-  -webkit-background-clip: text;
-  color: transparent;
-  margin-bottom: 1rem;
-}
-
-.modal-desc {
-  color: var(--text-secondary);
-  line-height: 1.6;
-  margin-bottom: 2rem;
-}
-
-.upgrade-btn {
-  display: block;
-  width: 100%;
-  padding: 1.2rem;
-  background: linear-gradient(135deg, #f59e0b, #d97706);
-  color: white;
-  border: none;
-  border-radius: 12px;
-  font-size: 1.1rem;
-  font-weight: 600;
-  cursor: pointer;
-  transition: transform 0.2s, box-shadow 0.2s;
-  font-family: 'Outfit', sans-serif;
-}
-
-.upgrade-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 10px 20px rgba(245, 158, 11, 0.3);
-}
 
 .loading-spinner {
   display: inline-block;
