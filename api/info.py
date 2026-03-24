@@ -3,6 +3,8 @@ from urllib.parse import urlparse, parse_qs
 import yt_dlp
 import json
 import os
+import tempfile
+import shutil
 
 class handler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
@@ -39,10 +41,20 @@ class handler(BaseHTTPRequestHandler):
         cookie_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
         root_cookie_path = os.path.join(os.path.dirname(__file__), '..', 'cookies.txt')
         
+        source_cookie = None
         if os.path.exists(cookie_path):
-            ydl_opts['cookiefile'] = cookie_path
+            source_cookie = cookie_path
         elif os.path.exists(root_cookie_path):
-            ydl_opts['cookiefile'] = root_cookie_path
+            source_cookie = root_cookie_path
+            
+        if source_cookie:
+            tmp_cookie_path = os.path.join(tempfile.gettempdir(), 'yt-dlp-cookies.txt')
+            try:
+                shutil.copyfile(source_cookie, tmp_cookie_path)
+                ydl_opts['cookiefile'] = tmp_cookie_path
+            except Exception as e:
+                print("Failed to copy cookies to tmp:", e)
+                ydl_opts['cookiefile'] = source_cookie
 
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
