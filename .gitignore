@@ -39,3 +39,7 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# yt-dlp sensitive files
+cookies.txt
+api/cookies.txt

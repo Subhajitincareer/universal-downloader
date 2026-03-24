@@ -2,6 +2,7 @@ from http.server import BaseHTTPRequestHandler
 from urllib.parse import urlparse, parse_qs
 import yt_dlp
 import json
+import os
 
 class handler(BaseHTTPRequestHandler):
     def do_OPTIONS(self):
@@ -34,6 +35,14 @@ class handler(BaseHTTPRequestHandler):
                 }
             }
         }
+        
+        cookie_path = os.path.join(os.path.dirname(__file__), 'cookies.txt')
+        root_cookie_path = os.path.join(os.path.dirname(__file__), '..', 'cookies.txt')
+        
+        if os.path.exists(cookie_path):
+            ydl_opts['cookiefile'] = cookie_path
+        elif os.path.exists(root_cookie_path):
+            ydl_opts['cookiefile'] = root_cookie_path
 
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
