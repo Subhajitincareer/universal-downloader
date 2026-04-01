@@ -42,10 +42,10 @@ export default function Home() {
 
     // Proxy Download Logic (Pipes through our Next.js server to bypass 403 IP mismatch)
     setDownloadingFormat(format.formatId);
-    
+
     // Hit our proxy API endpoint which streams the download securely
     const downloadUrl = `/api/download?url=${encodeURIComponent(url)}&formatId=${format.formatId}&title=${encodeURIComponent(videoInfo?.title || 'video')}&ext=${format.ext}`;
-    
+
     const a = document.createElement('a');
     a.href = downloadUrl;
     a.download = `${videoInfo?.title || 'video'}.${format.ext}`;
@@ -60,7 +60,7 @@ export default function Home() {
 
   const getCleanFormats = (formats) => {
     if (!formats) return [];
-    
+
     const resMap = new Map();
     formats.forEach(f => {
       // Use resolution + hasAudio as key to differentiate between silent and voiced versions
@@ -77,10 +77,10 @@ export default function Home() {
     <main className="container">
       {/* 1. Buy Me A Coffee Header Support Button */}
       <nav className="top-nav">
-        <a 
-          href="https://buymeacoffee.com/yourusername" 
-          target="_blank" 
-          rel="noopener noreferrer" 
+        <a
+          href="https://buymeacoffee.com/yourusername"
+          target="_blank"
+          rel="noopener noreferrer"
           className="support-btn"
         >
           <span>☕</span> Support the Developer
@@ -93,16 +93,16 @@ export default function Home() {
       </div>
 
       <div className="input-section">
-        <input 
-          type="url" 
-          className="url-input" 
-          placeholder="Paste YouTube, Instagram, TikTok, Facebook URL here..." 
+        <input
+          type="url"
+          className="url-input"
+          placeholder="Paste YouTube, Instagram, TikTok, Facebook URL here..."
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && fetchInfo()}
         />
-        <button 
-          className="fetch-btn" 
+        <button
+          className="fetch-btn"
           onClick={fetchInfo}
           disabled={loading || !url.trim()}
         >
@@ -112,15 +112,7 @@ export default function Home() {
 
       {error && <div className="error-message">{error}</div>}
 
-      {/* 2. Ethical Display Ad / Affiliate Banner Placeholder */}
-      <a href="https://go.nordvpn.net/aff_c?offer_id=15&aff_id=custom" target="_blank" rel="noopener noreferrer" className="ad-container">
-        <img src="https://via.placeholder.com/130x100/1e1b4b/6366f1?text=VPN+Ad" alt="Sponsored VPN" className="ad-image" />
-        <div className="ad-content">
-          <span className="ad-title">Protect Your Downloads</span>
-          <span className="ad-desc">Your ISP can see what you download. Hide your activity and unblock any video worldwide with our recommended VPN. Click for 60% off.</span>
-          <span className="ad-badge">Sponsored Resource</span>
-        </div>
-      </a>
+
 
       {loading && (
         <div className="center-content">
@@ -147,12 +139,12 @@ export default function Home() {
           <h3 style={{ marginBottom: '1.5rem', borderBottom: '1px solid var(--glass-border)', paddingBottom: '1rem' }}>
             Available Qualities
           </h3>
-          
+
           <div className="formats-list">
             {getCleanFormats(videoInfo.formats).map((format, idx) => {
               return (
-                <button 
-                  key={idx} 
+                <button
+                  key={idx}
                   className="format-btn"
                   onClick={() => handleDownloadClick(format)}
                   disabled={downloadingFormat === format.formatId}
