@@ -1,16 +1,16 @@
-import fs from 'fs';
+import fs from 'fs/promises';
+import { existsSync } from 'fs';
 import os from 'os';
 import path from 'path';
+import crypto from 'crypto';
 
 /**
- * Resolves a path to a cookies.txt file to pass to yt-dlp.
- * Priority order:
- * 1. YOUTUBE_COOKIES environment variable (base64 or raw text) — used on Vercel
- * 2. Local cookies.txt file in the project root — used in local development
+ * Creates or resolves a path to a cookies.txt file to pass to yt-dlp.
+ * Returns both the path and a cleanup function to immediately remove it after usage.
  *
- * @returns {string|null} Absolute path to a temp cookies file, or null if no cookies are available.
+ * @returns {Promise<{ cookiePath: string | null, cleanup: () => Promise<void> }>}
  */
-export function getCookiePath() {
+export async function getCookiePath() {
   // 1. Check for the environment variable (set in Vercel dashboard)
   const cookiesEnv = process.env.YOUTUBE_COOKIES;
   if (cookiesEnv) {
@@ -27,21 +27,36 @@ export function getCookiePath() {
       // Not base64 - use raw content as-is
     }
 
-    // Write to a temp file so yt-dlp can read it
-    const tmpFile = path.join(os.tmpdir(), `yt_cookies_${Date.now()}.txt`);
-    fs.writeFileSync(tmpFile, cookieContent, 'utf-8');
-    console.log('Using cookies from YOUTUBE_COOKIES environment variable. Temp file:', tmpFile);
-    return tmpFile;
+    // Write to a securely named temp file so yt-dlp can read it
+    const tmpFile = path.join(os.tmpdir(), `yt_cookies_${crypto.randomUUID()}.txt`);
+    await fs.writeFile(tmpFile, cookieContent, { mode: 0o600 });
+    
+    console.log('Using cookies from YOUTUBE_COOKIES environment variable. Temp file created.');
+    
+    return {
+      cookiePath: tmpFile,
+      cleanup: async () => {
+        try {
+          await fs.unlink(tmpFile);
+          console.log(`Cleaned up temp cookie file ${tmpFile}`);
+        } catch (err) {
+          // Ignore if already deleted
+        }
+      }
+    };
   }
 
   // 2. Fallback to local cookies.txt file
   const localCookiePath = path.resolve(process.cwd(), 'cookies.txt');
-  if (fs.existsSync(localCookiePath)) {
+  if (existsSync(localCookiePath)) {
     console.log('Using local cookies.txt file:', localCookiePath);
-    // For local dev, use a relative path to avoid Windows path-spacing issues
-    return 'cookies.txt';
+    // For local dev, no cleanup needed
+    return {
+      cookiePath: 'cookies.txt',
+      cleanup: async () => {} 
+    };
   }
 
   console.warn('WARNING: No cookies found. YouTube bot detection may block requests on datacenter IPs.');
-  return null;
+  return { cookiePath: null, cleanup: async () => {} };
 }

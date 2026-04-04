@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import youtubedl from 'youtube-dl-exec';
+import { getDirectUrl } from '../_services/ytdlp.js';
 import { getCookiePath } from '../_utils/cookies.js';
 
 export async function GET(request) {
@@ -13,24 +13,14 @@ export async function GET(request) {
     return NextResponse.json({ error: 'URL and formatId parameters are required' }, { status: 400 });
   }
 
-  const cookiePath = getCookiePath();
-
-  const options = {
-    dumpSingleJson: true,
-    noWarnings: true,
-    noCheckCertificate: true,
-    extractorArgs: "youtube:player_client=ios,web,android",
-    format: formatId
-  };
-
-  if (cookiePath) {
-    options.cookies = cookiePath;
-  }
+  let cleanupFn = async () => {};
 
   try {
+    const { cookiePath, cleanup } = await getCookiePath();
+    cleanupFn = cleanup;
+
     // 1. Get the authenticated direct CDN URL for this specific format
-    const output = await youtubedl(url, options);
-    const directUrl = output.url;
+    const directUrl = await getDirectUrl(url, formatId, cookiePath);
 
     if (!directUrl) {
       throw new Error("Failed to extract direct download URL from yt-dlp");
@@ -65,5 +55,8 @@ export async function GET(request) {
   } catch (error) {
     console.error('Proxy Download Error:', error.message || error);
     return NextResponse.json({ error: 'Failed to start download stream', details: error.message }, { status: 500 });
+  } finally {
+    // Clean up temporary cookies generated for this specific request
+    await cleanupFn();
   }
 }

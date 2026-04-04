@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import youtubedl from 'youtube-dl-exec';
+import { getInfo } from '../_services/ytdlp.js';
 import { getCookiePath } from '../_utils/cookies.js';
 
 export async function GET(request) {
@@ -10,21 +10,13 @@ export async function GET(request) {
     return NextResponse.json({ error: 'URL parameter is required' }, { status: 400 });
   }
 
+  let cleanupFn = async () => {};
+
   try {
-    const cookiePath = getCookiePath();
+    const { cookiePath, cleanup } = await getCookiePath();
+    cleanupFn = cleanup;
 
-    const options = {
-      dumpSingleJson: true,
-      noWarnings: true,
-      noCheckCertificate: true,
-      extractorArgs: "youtube:player_client=ios,web,android"
-    };
-
-    if (cookiePath) {
-      options.cookies = cookiePath;
-    }
-
-    const output = await youtubedl(url, options);
+    const output = await getInfo(url, cookiePath);
 
     const formats = output.formats
       .map((f) => {
@@ -67,7 +59,8 @@ export async function GET(request) {
   } catch (error) {
     console.error('yt-dlp Error:', error.message);
     
-    const isBotError = error.message?.includes('Sign in to confirm');
+    // Check our custom error message from the spawned service
+    const isBotError = error.message?.includes('Sign in to confirm') || error.message?.includes('BOT_DETECTED');
     
     return NextResponse.json({ 
       error: isBotError 
@@ -76,5 +69,8 @@ export async function GET(request) {
       details: error.message || String(error),
       requiresAuth: isBotError
     }, { status: 500 });
+  } finally {
+    // ALWAYS eagerly clean up the temporary cookie file
+    await cleanupFn();
   }
 }
