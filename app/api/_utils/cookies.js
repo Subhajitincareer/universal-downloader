@@ -19,12 +19,15 @@ export async function getCookiePath() {
     // Support both raw text and base64-encoded cookies
     try {
       const decoded = Buffer.from(cookiesEnv, 'base64').toString('utf-8');
-      // If it decodes and looks like a Netscape cookie file, use decoded version
+      // Strict validation: Must contain the magic keywords
       if (decoded.includes('# Netscape') || decoded.includes('.youtube.com')) {
         cookieContent = decoded;
+        console.log('SUCCESS: YOUTUBE_COOKIES base64 decoded correctly. Length: ' + decoded.length);
+      } else {
+        console.warn('WARNING: YOUTUBE_COOKIES decoded, but does NOT look like a valid Netscape cookie file!');
       }
-    } catch {
-      // Not base64 - use raw content as-is
+    } catch (e) {
+      console.warn('WARNING: Could not decode YOUTUBE_COOKIES as base64. Using raw string. Error:', e.message);
     }
 
     // Write to a securely named temp file so yt-dlp can read it

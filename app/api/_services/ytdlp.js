@@ -59,7 +59,9 @@ export async function getInfo(url, cookiePath) {
     '--dump-single-json',
     '--no-warnings',
     '--no-check-certificate',
-    '--extractor-args', 'youtube:player_client=ios,web,android',
+    '--impersonate', // Aggressively mimic browser TLS fingerprints to bypass bot checks
+    '--rm-cache-dir', // Clear youtube-dl cache which might store banned IP tokens
+    '--extractor-args', 'youtube:player_client=ios,android,web', // Fallbacks
     url
   ];
 
@@ -80,7 +82,9 @@ export async function getDirectUrl(url, formatId, cookiePath) {
     '-f', formatId,
     '--no-warnings',
     '--no-check-certificate',
-    '--extractor-args', 'youtube:player_client=ios,web,android',
+    '--impersonate',
+    '--rm-cache-dir',
+    '--extractor-args', 'youtube:player_client=ios,android,web',
     url
   ];
 
