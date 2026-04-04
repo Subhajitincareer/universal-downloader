@@ -1,4 +1,5 @@
 import { spawn } from 'child_process';
+import { YOUTUBE_DL_PATH } from 'youtube-dl-exec/src/constants.js';
 
 /**
  * Executes yt-dlp manually to avoid youtube-dl-exec buffering issues
@@ -10,7 +11,7 @@ import { spawn } from 'child_process';
 export function execYtDlp(args) {
   return new Promise((resolve, reject) => {
     // We enforce native output newline rendering so stream parsing is cleaner
-    const ytdlp = spawn('yt-dlp', [...args]);
+    const ytdlp = spawn(YOUTUBE_DL_PATH || 'yt-dlp', [...args]);
 
     let stdoutChunks = [];
     let stderrChunks = [];
